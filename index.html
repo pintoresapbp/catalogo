@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Catálogo</title>
+</head>
+<body>
+
+<h1>Catálogo</h1>
+<div id="catalogo"></div>
+
+<script>
+const SHEET_ID = "1dHq0xUfn0bv9PeMDGCEk4XpKpy3jYmrqb11xZNi7rso";
+const SHEET_NAME = "Sheet1";
+
+const URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${SHEET_NAME}`;
+
+fetch(URL)
+  .then(res => res.text())
+  .then(text => {
+    const json = JSON.parse(text.substring(47).slice(0, -2));
+    const rows = json.table.rows;
+
+    const container = document.getElementById("catalogo");
+    container.innerHTML = "";
+
+    rows.forEach(row => {
+      const campanha = row.c[0]?.v || "";
+      const tipo = row.c[1]?.v || "";
+      const sku = row.c[2]?.v || "";
+      const produto = row.c[3]?.v || "";
+      const saldo = Number(row.c[4]?.v || 0);
+
+      // regra: só mostra se tiver estoque
+      if (saldo <= 0) return;
+
+      const card = document.createElement("div");
+      card.innerHTML = `
+        <hr>
+        <div><strong>Campanha:</strong> ${campanha}</div>
+        <div><strong>Tipo:</strong> ${tipo}</div>
+        <div><strong>SKU:</strong> ${sku}</div>
+        <div><strong>Produto:</strong> ${produto}</div>
+        <div><strong>Estoque:</strong> ${saldo}</div>
+      `;
+
+      container.appendChild(card);
+    });
+  })
+  .catch(err => {
+    document.getElementById("catalogo").innerText = "Erro ao carregar dados";
+    console.error(err);
+  });
+</script>
+
+</body>
+</html>
