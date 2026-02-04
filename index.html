@@ -3,77 +3,116 @@
 <head>
   <meta charset="UTF-8">
   <title>Catálogo</title>
-</head>
-<body>
-  <h1>Catálogo de Produtos</h1>
-  <div id="catalogo"></div>
-</body>
+
   <style>
-body {
-  font-family: Arial, sans-serif;
-  margin: 30px;
-  background: #f7f7f7;
-}
+    body {
+      font-family: Arial, sans-serif;
+      margin: 30px;
+      background: #f7f7f7;
+    }
 
-h1 {
-  text-align: center;
-}
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+    }
 
-.campanha {
-  margin-top: 50px;
-}
+    /* FILTROS */
+    #filtros {
+      text-align: center;
+      margin-bottom: 30px;
+    }
 
-.campanha h2 {
-  border-bottom: 2px solid #ddd;
-  padding-bottom: 5px;
-}
+    .filtros {
+      margin-bottom: 15px;
+    }
 
-.tipo {
-  margin-top: 25px;
-}
+    .filtros button {
+      margin: 5px;
+      padding: 8px 16px;
+      border-radius: 20px;
+      border: 1px solid #ccc;
+      background: #fff;
+      cursor: pointer;
+    }
 
-.tipo h3 {
-  margin-bottom: 15px;
-  color: #444;
-}
+    .filtros button.ativo {
+      background: #000;
+      color: #fff;
+      border-color: #000;
+    }
 
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 20px;
-}
+    /* CATÁLOGO */
+    .campanha {
+      margin-top: 50px;
+    }
 
-.card {
-  background: white;
-  border-radius: 8px;
-  padding: 15px;
-  text-align: center;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-}
+    .campanha h2 {
+      border-bottom: 2px solid #ddd;
+      padding-bottom: 5px;
+    }
 
-.card img {
-  width: 100%;
-  height: 160px;
-  object-fit: contain;
-  margin-bottom: 10px;
-}
+    .tipo {
+      margin-top: 25px;
+    }
 
-.nome {
-  font-size: 14px;
-  font-weight: bold;
-  margin-bottom: 5px;
-}
+    .tipo h3 {
+      margin-bottom: 15px;
+      color: #444;
+    }
 
-.valor {
-  font-size: 15px;
-  color: #1a7f37;
-}
-</style>
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 8px;
+      padding: 15px;
+      text-align: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+
+    .card img {
+      width: 100%;
+      height: 160px;
+      object-fit: contain;
+      margin-bottom: 10px;
+    }
+
+    .nome {
+      font-size: 14px;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .valor {
+      font-size: 15px;
+      color: #1a7f37;
+    }
+  </style>
+</head>
+
+<body>
+
+<h1>Catálogo de Produtos</h1>
+
+<div id="filtros">
+  <div id="filtro-campanha" class="filtros"></div>
+  <div id="filtro-tipo" class="filtros"></div>
+</div>
+
+<div id="catalogo"></div>
+
 <script>
 const SHEET_ID = "1dHq0xUfn0bv9PeMDGCEk4XpKpy3jYmrqb11xZNi7rso";
 const SHEET_NAME = "Sheet1";
-
 const URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${SHEET_NAME}`;
+
+let dadosOriginais = {};
+let campanhaAtiva = null;
+let tipoAtivo = null;
 
 fetch(URL)
   .then(res => res.text())
@@ -81,12 +120,9 @@ fetch(URL)
     const json = JSON.parse(text.substring(47).slice(0, -2));
     const rows = json.table.rows;
 
-    const dados = {};
-
     rows.forEach(row => {
       const campanha = row.c[0]?.v || "";
       const tipo = row.c[1]?.v || "";
-      const sku = row.c[2]?.v || "";
       const produto = row.c[3]?.v || "";
       const saldo = Number(row.c[4]?.v || 0);
       const valor = Number(row.c[5]?.v || 0);
@@ -94,50 +130,97 @@ fetch(URL)
 
       if (saldo <= 0) return;
 
-      if (!dados[campanha]) dados[campanha] = {};
-      if (!dados[campanha][tipo]) dados[campanha][tipo] = [];
+      if (!dadosOriginais[campanha]) dadosOriginais[campanha] = {};
+      if (!dadosOriginais[campanha][tipo]) dadosOriginais[campanha][tipo] = [];
 
-      dados[campanha][tipo].push({ produto, valor, imagem });
+      dadosOriginais[campanha][tipo].push({ produto, valor, imagem });
     });
 
-    const container = document.getElementById("catalogo");
-    container.innerHTML = "";
-
-    for (const campanha in dados) {
-      const divCampanha = document.createElement("div");
-      divCampanha.className = "campanha";
-      divCampanha.innerHTML = `<h2>${campanha}</h2>`;
-
-      for (const tipo in dados[campanha]) {
-        const divTipo = document.createElement("div");
-        divTipo.className = "tipo";
-        divTipo.innerHTML = `<h3>${tipo}</h3><div class="grid"></div>`;
-
-        const grid = divTipo.querySelector(".grid");
-
-        dados[campanha][tipo].forEach(item => {
-          const card = document.createElement("div");
-          card.className = "card";
-
-          card.innerHTML = `
-            <img src="${item.imagem || 'https://via.placeholder.com/200'}">
-            <div class="nome">${item.produto}</div>
-            <div class="valor">R$ ${item.valor.toFixed(2).replace(".", ",")}</div>
-          `;
-
-          grid.appendChild(card);
-        });
-
-        divCampanha.appendChild(divTipo);
-      }
-
-      container.appendChild(divCampanha);
-    }
-  })
-  .catch(err => {
-    document.getElementById("catalogo").innerText = "Erro ao carregar catálogo";
-    console.error(err);
+    renderFiltroCampanha();
   });
+
+/* FILTROS */
+
+function renderFiltroCampanha() {
+  const div = document.getElementById("filtro-campanha");
+  div.innerHTML = "<strong>Campanhas:</strong><br>";
+
+  Object.keys(dadosOriginais).forEach(campanha => {
+    const btn = document.createElement("button");
+    btn.innerText = campanha;
+
+    btn.onclick = () => {
+      campanhaAtiva = campanha;
+      tipoAtivo = null;
+      marcarAtivo(div, btn);
+      renderFiltroTipo(dadosOriginais[campanha]);
+      renderCatalogo();
+    };
+
+    div.appendChild(btn);
+  });
+}
+
+function renderFiltroTipo(tipos) {
+  const div = document.getElementById("filtro-tipo");
+  div.innerHTML = "<strong>Tipos:</strong><br>";
+
+  Object.keys(tipos).forEach(tipo => {
+    const btn = document.createElement("button");
+    btn.innerText = tipo;
+
+    btn.onclick = () => {
+      tipoAtivo = tipo;
+      marcarAtivo(div, btn);
+      renderCatalogo();
+    };
+
+    div.appendChild(btn);
+  });
+}
+
+function marcarAtivo(container, botaoAtivo) {
+  [...container.querySelectorAll("button")].forEach(b => b.classList.remove("ativo"));
+  botaoAtivo.classList.add("ativo");
+}
+
+/* CATÁLOGO */
+
+function renderCatalogo() {
+  const container = document.getElementById("catalogo");
+  container.innerHTML = "";
+
+  if (!campanhaAtiva) return;
+
+  const tipos = dadosOriginais[campanhaAtiva];
+
+  for (const tipo in tipos) {
+    if (tipoAtivo && tipo !== tipoAtivo) continue;
+
+    const divTipo = document.createElement("div");
+    divTipo.className = "tipo";
+    divTipo.innerHTML = `<h3>${tipo}</h3><div class="grid"></div>`;
+
+    const grid = divTipo.querySelector(".grid");
+
+    tipos[tipo].forEach(item => {
+      const card = document.createElement("div");
+      card.className = "card";
+
+      card.innerHTML = `
+        <img src="${item.imagem || 'https://via.placeholder.com/200'}">
+        <div class="nome">${item.produto}</div>
+        <div class="valor">R$ ${item.valor.toFixed(2).replace(".", ",")}</div>
+      `;
+
+      grid.appendChild(card);
+    });
+
+    container.appendChild(divTipo);
+  }
+}
 </script>
 
+</body>
 </html>
+
