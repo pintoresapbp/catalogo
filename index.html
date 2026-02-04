@@ -33,6 +33,7 @@
       border: 1px solid #ccc;
       background: #fff;
       cursor: pointer;
+      font-size: 14px;
     }
 
     .filtros button.ativo {
@@ -42,17 +43,8 @@
     }
 
     /* CATÁLOGO */
-    .campanha {
-      margin-top: 50px;
-    }
-
-    .campanha h2 {
-      border-bottom: 2px solid #ddd;
-      padding-bottom: 5px;
-    }
-
     .tipo {
-      margin-top: 25px;
+      margin-top: 30px;
     }
 
     .tipo h3 {
@@ -84,7 +76,7 @@
     .nome {
       font-size: 14px;
       font-weight: bold;
-      margin-bottom: 5px;
+      margin-bottom: 6px;
     }
 
     .valor {
@@ -108,6 +100,7 @@
 <script>
 const SHEET_ID = "1dHq0xUfn0bv9PeMDGCEk4XpKpy3jYmrqb11xZNi7rso";
 const SHEET_NAME = "Sheet1";
+
 const URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${SHEET_NAME}`;
 
 let dadosOriginais = {};
@@ -123,6 +116,7 @@ fetch(URL)
     rows.forEach(row => {
       const campanha = row.c[0]?.v || "";
       const tipo = row.c[1]?.v || "";
+      const sku = row.c[2]?.v || "";
       const produto = row.c[3]?.v || "";
       const saldo = Number(row.c[4]?.v || 0);
       const valor = Number(row.c[5]?.v || 0);
@@ -133,13 +127,18 @@ fetch(URL)
       if (!dadosOriginais[campanha]) dadosOriginais[campanha] = {};
       if (!dadosOriginais[campanha][tipo]) dadosOriginais[campanha][tipo] = [];
 
-      dadosOriginais[campanha][tipo].push({ produto, valor, imagem });
+      dadosOriginais[campanha][tipo].push({
+        sku,
+        produto,
+        valor,
+        imagem
+      });
     });
 
     renderFiltroCampanha();
   });
 
-/* FILTROS */
+/* ===== FILTROS ===== */
 
 function renderFiltroCampanha() {
   const div = document.getElementById("filtro-campanha");
@@ -180,11 +179,13 @@ function renderFiltroTipo(tipos) {
 }
 
 function marcarAtivo(container, botaoAtivo) {
-  [...container.querySelectorAll("button")].forEach(b => b.classList.remove("ativo"));
+  [...container.querySelectorAll("button")].forEach(b =>
+    b.classList.remove("ativo")
+  );
   botaoAtivo.classList.add("ativo");
 }
 
-/* CATÁLOGO */
+/* ===== CATÁLOGO ===== */
 
 function renderCatalogo() {
   const container = document.getElementById("catalogo");
@@ -209,7 +210,7 @@ function renderCatalogo() {
 
       card.innerHTML = `
         <img src="${item.imagem || 'https://via.placeholder.com/200'}">
-        <div class="nome">${item.produto}</div>
+        <div class="nome">${item.sku} • ${item.produto}</div>
         <div class="valor">R$ ${item.valor.toFixed(2).replace(".", ",")}</div>
       `;
 
@@ -223,4 +224,3 @@ function renderCatalogo() {
 
 </body>
 </html>
-
