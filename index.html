@@ -133,6 +133,7 @@
 <script>
 const SHEET_ID = "1dHq0xUfn0bv9PeMDGCEk4XpKpy3jYmrqb11xZNi7rso";
 const SHEET_NAME = "Sheet1";
+const CAMPANHA_INICIAL = "Datas Especiais";
 
 const URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${SHEET_NAME}`;
 
@@ -164,6 +165,14 @@ fetch(URL)
     });
 
     renderFiltroCampanha();
+
+    // 🔥 AQUI ESTÁ O ESTADO INICIAL
+    if (dadosOriginais[CAMPANHA_INICIAL]) {
+      campanhaAtiva = CAMPANHA_INICIAL;
+      renderFiltroTipo(dadosOriginais[campanhaAtiva]);
+      marcarAtivoPorTexto("filtro-campanha", CAMPANHA_INICIAL);
+      renderCatalogo();
+    }
   });
 
 /* FILTROS */
@@ -209,6 +218,13 @@ function renderFiltroTipo(tipos) {
 function marcarAtivo(container, botaoAtivo) {
   [...container.querySelectorAll("button")].forEach(b => b.classList.remove("ativo"));
   botaoAtivo.classList.add("ativo");
+}
+
+function marcarAtivoPorTexto(containerId, texto) {
+  const container = document.getElementById(containerId);
+  [...container.querySelectorAll("button")].forEach(btn => {
+    btn.classList.toggle("ativo", btn.innerText === texto);
+  });
 }
 
 /* CATÁLOGO */
