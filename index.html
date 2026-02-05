@@ -42,6 +42,19 @@
       border-color: #000;
     }
 
+    .img-wrapper {
+      overflow: hidden;
+      border-radius: 6px;
+    }
+
+    .card img {
+      transition: transform 0.3s ease;
+    }
+
+    .card:hover img {
+       transform: scale(1.15);
+    }
+
     /* CATÁLOGO */
     .tipo {
       margin-top: 30px;
@@ -209,7 +222,9 @@ function renderCatalogo() {
       card.className = "card";
 
       card.innerHTML = `
-        <img src="${item.imagem || 'https://via.placeholder.com/200'}">
+        <div class="img-wrapper">
+          <img src="${item.imagem || 'https://via.placeholder.com/200'}">
+        </div>
         <div class="nome">${item.sku} • ${item.produto}</div>
         <div class="valor">R$ ${item.valor.toFixed(2).replace(".", ",")}</div>
       `;
