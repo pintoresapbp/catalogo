@@ -42,19 +42,6 @@
       border-color: #000;
     }
 
-    .img-wrapper {
-      overflow: hidden;
-      border-radius: 6px;
-    }
-
-    .card img {
-      transition: transform 0.3s ease;
-    }
-
-    .card:hover img {
-       transform: scale(1.15);
-    }
-
     /* CATÁLOGO */
     .tipo {
       margin-top: 30px;
@@ -84,6 +71,7 @@
       height: 160px;
       object-fit: contain;
       margin-bottom: 10px;
+      cursor: zoom-in;
     }
 
     .nome {
@@ -95,6 +83,32 @@
     .valor {
       font-size: 15px;
       color: #1a7f37;
+    }
+
+    /* MODAL */
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      z-index: 999;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal img {
+      max-width: 90%;
+      max-height: 90%;
+      border-radius: 8px;
+    }
+
+    .modal .fechar {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      font-size: 32px;
+      color: white;
+      cursor: pointer;
     }
   </style>
 </head>
@@ -109,6 +123,12 @@
 </div>
 
 <div id="catalogo"></div>
+
+<!-- MODAL -->
+<div id="modal" class="modal">
+  <span class="fechar">&times;</span>
+  <img id="modal-img">
+</div>
 
 <script>
 const SHEET_ID = "1dHq0xUfn0bv9PeMDGCEk4XpKpy3jYmrqb11xZNi7rso";
@@ -140,18 +160,13 @@ fetch(URL)
       if (!dadosOriginais[campanha]) dadosOriginais[campanha] = {};
       if (!dadosOriginais[campanha][tipo]) dadosOriginais[campanha][tipo] = [];
 
-      dadosOriginais[campanha][tipo].push({
-        sku,
-        produto,
-        valor,
-        imagem
-      });
+      dadosOriginais[campanha][tipo].push({ sku, produto, valor, imagem });
     });
 
     renderFiltroCampanha();
   });
 
-/* ===== FILTROS ===== */
+/* FILTROS */
 
 function renderFiltroCampanha() {
   const div = document.getElementById("filtro-campanha");
@@ -192,13 +207,11 @@ function renderFiltroTipo(tipos) {
 }
 
 function marcarAtivo(container, botaoAtivo) {
-  [...container.querySelectorAll("button")].forEach(b =>
-    b.classList.remove("ativo")
-  );
+  [...container.querySelectorAll("button")].forEach(b => b.classList.remove("ativo"));
   botaoAtivo.classList.add("ativo");
 }
 
-/* ===== CATÁLOGO ===== */
+/* CATÁLOGO */
 
 function renderCatalogo() {
   const container = document.getElementById("catalogo");
@@ -221,10 +234,10 @@ function renderCatalogo() {
       const card = document.createElement("div");
       card.className = "card";
 
+      const imgSrc = item.imagem || "https://via.placeholder.com/200";
+
       card.innerHTML = `
-        <div class="img-wrapper">
-          <img src="${item.imagem || 'https://via.placeholder.com/200'}">
-        </div>
+        <img src="${imgSrc}" data-full="${imgSrc}">
         <div class="nome">${item.sku} • ${item.produto}</div>
         <div class="valor">R$ ${item.valor.toFixed(2).replace(".", ",")}</div>
       `;
@@ -235,6 +248,24 @@ function renderCatalogo() {
     container.appendChild(divTipo);
   }
 }
+
+/* MODAL */
+
+const modal = document.getElementById("modal");
+const modalImg = document.getElementById("modal-img");
+const fechar = modal.querySelector(".fechar");
+
+document.addEventListener("click", e => {
+  if (e.target.tagName === "IMG" && e.target.closest(".card")) {
+    modal.style.display = "flex";
+    modalImg.src = e.target.dataset.full;
+  }
+});
+
+fechar.onclick = () => modal.style.display = "none";
+modal.onclick = e => {
+  if (e.target === modal) modal.style.display = "none";
+};
 </script>
 
 </body>
