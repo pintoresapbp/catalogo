@@ -1,287 +1,245 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <title>Catálogo</title>
+<meta charset="UTF-8">
+<title>Catálogo de Produtos</title>
 
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 30px;
-      background: #f7f7f7;
-    }
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 
-    h1 {
-      text-align: center;
-      margin-bottom: 30px;
-    }
+<style>
+body {
+  font-family: 'Inter', sans-serif;
+  background: #FAFAF7;
+  margin: 0;
+  padding: 40px 60px;
+  color: #2B2B2B;
+}
 
-    /* FILTROS */
-    #filtros {
-      text-align: center;
-      margin-bottom: 30px;
-    }
+h1 {
+  font-family: 'Playfair Display', serif;
+  text-align: center;
+  margin-bottom: 10px;
+}
 
-    .filtros {
-      margin-bottom: 15px;
-    }
+.filtros {
+  text-align: center;
+  margin: 30px 0 50px;
+}
 
-    .filtros button {
-      margin: 5px;
-      padding: 8px 16px;
-      border-radius: 20px;
-      border: 1px solid #ccc;
-      background: #fff;
-      cursor: pointer;
-      font-size: 14px;
-    }
+.filtros h4 {
+  margin: 15px 0 8px;
+  font-weight: 400;
+  color: #6F6F6F;
+}
 
-    .filtros button.ativo {
-      background: #000;
-      color: #fff;
-      border-color: #000;
-    }
+.filtro-btn {
+  border: 1px solid #ddd;
+  background: transparent;
+  padding: 6px 14px;
+  margin: 4px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 13px;
+}
 
-    /* CATÁLOGO */
-    .tipo {
-      margin-top: 30px;
-    }
+.filtro-btn.ativo {
+  background: #EAE8E3;
+  border-color: #EAE8E3;
+}
 
-    .tipo h3 {
-      margin-bottom: 15px;
-      color: #444;
-    }
+.secao {
+  margin-bottom: 70px;
+}
 
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-      gap: 20px;
-    }
+.secao h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  margin-bottom: 25px;
+}
 
-    .card {
-      background: white;
-      border-radius: 8px;
-      padding: 15px;
-      text-align: center;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-    }
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 35px;
+}
 
-    .card img {
-      width: 100%;
-      height: 160px;
-      object-fit: contain;
-      margin-bottom: 10px;
-      cursor: zoom-in;
-    }
+.card {
+  text-align: center;
+}
 
-    .nome {
-      font-size: 14px;
-      font-weight: bold;
-      margin-bottom: 6px;
-    }
+.card img {
+  width: 100%;
+  height: 200px;
+  object-fit: contain;
+  cursor: pointer;
+}
 
-    .valor {
-      font-size: 15px;
-      color: #1a7f37;
-    }
+.nome {
+  margin-top: 10px;
+  font-size: 13px;
+  font-weight: 500;
+}
 
-    /* MODAL */
-    .modal {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.85);
-      z-index: 999;
-      justify-content: center;
-      align-items: center;
-    }
+.valor {
+  font-size: 13px;
+  color: #3E6B5B;
+  margin-top: 3px;
+}
 
-    .modal img {
-      max-width: 90%;
-      max-height: 90%;
-      border-radius: 8px;
-    }
+/* MODAL */
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+}
 
-    .modal .fechar {
-      position: absolute;
-      top: 20px;
-      right: 30px;
-      font-size: 32px;
-      color: white;
-      cursor: pointer;
-    }
-  </style>
+.modal img {
+  max-width: 85%;
+  max-height: 85%;
+}
+
+.modal .legenda {
+  margin-top: 15px;
+  text-align: center;
+  color: #fff;
+  font-size: 14px;
+}
+
+@media (max-width: 768px) {
+  body {
+    padding: 25px;
+  }
+}
+</style>
 </head>
 
 <body>
 
 <h1>Catálogo de Produtos</h1>
 
-<div id="filtros">
-  <div id="filtro-campanha" class="filtros"></div>
-  <div id="filtro-tipo" class="filtros"></div>
+<div class="filtros">
+  <h4>Campanhas</h4>
+  <div id="filtroCampanha"></div>
+
+  <h4>Tipos</h4>
+  <div id="filtroTipo"></div>
 </div>
 
 <div id="catalogo"></div>
 
-<!-- MODAL -->
-<div id="modal" class="modal">
-  <span class="fechar">&times;</span>
-  <img id="modal-img">
+<div class="modal" id="modal">
+  <div>
+    <img id="modalImg">
+    <div class="legenda" id="modalLegenda"></div>
+  </div>
 </div>
 
 <script>
 const SHEET_ID = "1dHq0xUfn0bv9PeMDGCEk4XpKpy3jYmrqb11xZNi7rso";
 const SHEET_NAME = "Sheet1";
-const CAMPANHA_INICIAL = "Datas Especiais";
-
 const URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${SHEET_NAME}`;
 
-let dadosOriginais = {};
-let campanhaAtiva = null;
-let tipoAtivo = null;
+let dados = {};
+let campanhaAtiva = "";
+let tipoAtivo = "";
 
 fetch(URL)
-  .then(res => res.text())
-  .then(text => {
-    const json = JSON.parse(text.substring(47).slice(0, -2));
-    const rows = json.table.rows;
+  .then(r => r.text())
+  .then(t => {
+    const json = JSON.parse(t.substring(47).slice(0, -2));
+    json.table.rows.forEach(r => {
+      const campanha = r.c[0]?.v;
+      const tipo = r.c[1]?.v;
+      const sku = r.c[2]?.v;
+      const produto = r.c[3]?.v;
+      const estoque = Number(r.c[4]?.v || 0);
+      const valor = Number(r.c[5]?.v || 0);
+      const imagem = r.c[6]?.v;
 
-    rows.forEach(row => {
-      const campanha = row.c[0]?.v || "";
-      const tipo = row.c[1]?.v || "";
-      const sku = row.c[2]?.v || "";
-      const produto = row.c[3]?.v || "";
-      const saldo = Number(row.c[4]?.v || 0);
-      const valor = Number(row.c[5]?.v || 0);
-      const imagem = row.c[6]?.v || "";
+      if (estoque <= 0) return;
 
-      if (saldo <= 0) return;
-
-      if (!dadosOriginais[campanha]) dadosOriginais[campanha] = {};
-      if (!dadosOriginais[campanha][tipo]) dadosOriginais[campanha][tipo] = [];
-
-      dadosOriginais[campanha][tipo].push({ sku, produto, valor, imagem });
+      dados[campanha] ??= {};
+      dados[campanha][tipo] ??= [];
+      dados[campanha][tipo].push({ sku, produto, valor, imagem });
     });
 
-    renderFiltroCampanha();
-
-    // 🔥 AQUI ESTÁ O ESTADO INICIAL
-    if (dadosOriginais[CAMPANHA_INICIAL]) {
-      campanhaAtiva = CAMPANHA_INICIAL;
-      renderFiltroTipo(dadosOriginais[campanhaAtiva]);
-      marcarAtivoPorTexto("filtro-campanha", CAMPANHA_INICIAL);
-      renderCatalogo();
-    }
+    campanhaAtiva = Object.keys(dados)[0];
+    renderFiltros();
+    renderCatalogo();
   });
 
-/* FILTROS */
+function renderFiltros() {
+  const fc = document.getElementById("filtroCampanha");
+  const ft = document.getElementById("filtroTipo");
+  fc.innerHTML = ft.innerHTML = "";
 
-function renderFiltroCampanha() {
-  const div = document.getElementById("filtro-campanha");
-  div.innerHTML = "<strong>Campanhas:</strong><br>";
-
-  Object.keys(dadosOriginais).forEach(campanha => {
-    const btn = document.createElement("button");
-    btn.innerText = campanha;
-
-    btn.onclick = () => {
-      campanhaAtiva = campanha;
-      tipoAtivo = null;
-      marcarAtivo(div, btn);
-      renderFiltroTipo(dadosOriginais[campanha]);
+  Object.keys(dados).forEach(c => {
+    const b = document.createElement("button");
+    b.className = "filtro-btn" + (c === campanhaAtiva ? " ativo" : "");
+    b.innerText = c;
+    b.onclick = () => {
+      campanhaAtiva = c;
+      tipoAtivo = "";
+      renderFiltros();
       renderCatalogo();
     };
-
-    div.appendChild(btn);
+    fc.appendChild(b);
   });
-}
 
-function renderFiltroTipo(tipos) {
-  const div = document.getElementById("filtro-tipo");
-  div.innerHTML = "<strong>Tipos:</strong><br>";
-
-  Object.keys(tipos).forEach(tipo => {
-    const btn = document.createElement("button");
-    btn.innerText = tipo;
-
-    btn.onclick = () => {
-      tipoAtivo = tipo;
-      marcarAtivo(div, btn);
+  Object.keys(dados[campanhaAtiva]).forEach(t => {
+    const b = document.createElement("button");
+    b.className = "filtro-btn" + (t === tipoAtivo ? " ativo" : "");
+    b.innerText = t;
+    b.onclick = () => {
+      tipoAtivo = t;
+      renderFiltros();
       renderCatalogo();
     };
-
-    div.appendChild(btn);
+    ft.appendChild(b);
   });
 }
-
-function marcarAtivo(container, botaoAtivo) {
-  [...container.querySelectorAll("button")].forEach(b => b.classList.remove("ativo"));
-  botaoAtivo.classList.add("ativo");
-}
-
-function marcarAtivoPorTexto(containerId, texto) {
-  const container = document.getElementById(containerId);
-  [...container.querySelectorAll("button")].forEach(btn => {
-    btn.classList.toggle("ativo", btn.innerText === texto);
-  });
-}
-
-/* CATÁLOGO */
 
 function renderCatalogo() {
-  const container = document.getElementById("catalogo");
-  container.innerHTML = "";
+  const c = document.getElementById("catalogo");
+  c.innerHTML = "";
 
-  if (!campanhaAtiva) return;
+  Object.keys(dados[campanhaAtiva]).forEach(tipo => {
+    if (tipoAtivo && tipo !== tipoAtivo) return;
 
-  const tipos = dadosOriginais[campanhaAtiva];
+    const sec = document.createElement("div");
+    sec.className = "secao";
+    sec.innerHTML = `<h2>${tipo}</h2><div class="grid"></div>`;
 
-  for (const tipo in tipos) {
-    if (tipoAtivo && tipo !== tipoAtivo) continue;
+    const grid = sec.querySelector(".grid");
 
-    const divTipo = document.createElement("div");
-    divTipo.className = "tipo";
-    divTipo.innerHTML = `<h3>${tipo}</h3><div class="grid"></div>`;
-
-    const grid = divTipo.querySelector(".grid");
-
-    tipos[tipo].forEach(item => {
+    dados[campanhaAtiva][tipo].forEach(i => {
       const card = document.createElement("div");
       card.className = "card";
-
-      const imgSrc = item.imagem || "https://via.placeholder.com/200";
-
       card.innerHTML = `
-        <img src="${imgSrc}" data-full="${imgSrc}">
-        <div class="nome">${item.sku} • ${item.produto}</div>
-        <div class="valor">R$ ${item.valor.toFixed(2).replace(".", ",")}</div>
+        <img src="${i.imagem}" onclick="abrirModal('${i.imagem}','${i.sku} • ${i.produto}')">
+        <div class="nome">${i.sku} • ${i.produto}</div>
+        <div class="valor">R$ ${i.valor.toFixed(2).replace('.', ',')}</div>
       `;
-
       grid.appendChild(card);
     });
 
-    container.appendChild(divTipo);
-  }
+    c.appendChild(sec);
+  });
 }
 
-/* MODAL */
+function abrirModal(img, texto) {
+  document.getElementById("modalImg").src = img;
+  document.getElementById("modalLegenda").innerText = texto;
+  document.getElementById("modal").style.display = "flex";
+}
 
-const modal = document.getElementById("modal");
-const modalImg = document.getElementById("modal-img");
-const fechar = modal.querySelector(".fechar");
-
-document.addEventListener("click", e => {
-  if (e.target.tagName === "IMG" && e.target.closest(".card")) {
-    modal.style.display = "flex";
-    modalImg.src = e.target.dataset.full;
-  }
-});
-
-fechar.onclick = () => modal.style.display = "none";
-modal.onclick = e => {
-  if (e.target === modal) modal.style.display = "none";
-};
+document.getElementById("modal").onclick = () =>
+  document.getElementById("modal").style.display = "none";
 </script>
 
 </body>
