@@ -120,6 +120,97 @@ h1 {
     padding: 25px;
   }
 }
+
+/* =========================
+   MOBILE (até 768px)
+========================= */
+@media (max-width: 768px) {
+
+  body {
+    padding: 0 16px;
+  }
+
+  h1 {
+    font-size: 28px;
+    text-align: center;
+  }
+
+  h2 {
+    font-size: 22px;
+    margin-bottom: 16px;
+  }
+
+  /* Filtros */
+  .filtros,
+  .campanhas,
+  .tipos {
+    display: flex;
+    overflow-x: auto;
+    gap: 10px;
+    padding-bottom: 8px;
+    justify-content: flex-start;
+  }
+
+  .filtros::-webkit-scrollbar {
+    display: none;
+  }
+
+  .filtro-btn {
+    flex: 0 0 auto;
+    white-space: nowrap;
+    font-size: 14px;
+    padding: 8px 14px;
+  }
+
+  /* Grid de produtos */
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    justify-content: center;
+  }
+
+  /* Cards */
+  .card {
+    width: 100%;
+  }
+
+  .card img {
+    width: 100%;
+    height: auto;
+  }
+
+  .card h3 {
+    font-size: 14px;
+    line-height: 1.3;
+  }
+
+  .card p {
+    font-size: 13px;
+  }
+
+  /* Seções */
+  .secao {
+    margin-bottom: 70px;
+  }
+
+  /* Modal */
+  .modal {
+    padding: 16px;
+  }
+
+  .modal-content {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .modal img {
+    max-width: 100%;
+    transform: scale(0.65); /* mantém sua decisão */
+  }
+
+}
+  
 </style>
 </head>
 
